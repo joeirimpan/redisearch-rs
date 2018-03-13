@@ -1,0 +1,6 @@
+[package]
+name = "redisearch"
+version = "0.1.0"
+authors = ["Joe Paul <joeirimpan@gmail.com>"]
+
+[dependencies]
