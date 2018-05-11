@@ -4,3 +4,8 @@ version = "0.1.0"
 authors = ["Joe Paul <joeirimpan@gmail.com>"]
 
 [dependencies]
+redis = "0.8.0"
+
+[[bin]]
+name = "redisearch"
+path = "src/lib.rs"
