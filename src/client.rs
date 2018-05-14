@@ -38,24 +38,52 @@ impl RediSearch {
     }
 
     /// Add a single document to the index.
-    pub fn add_document(&self) {
-        unimplemented!()
+    pub fn add_document(
+        &self, doc_id: &str, no_save: bool, score: f32,
+        payload: &str, mut replace: bool, partial: bool,
+        language: &str, fields: Vec<(&str, &str)>
+    ) -> redis::RedisResult<()> {
+        let mut cmd = redis::cmd("FT.ADD");
+        cmd.arg(self.index_name.clone()).arg(doc_id).arg(score);
+
+        if partial {
+            replace = true;
+        }
+        if no_save {
+            cmd.arg("NOSAVE");
+        }
+        if payload != "" {
+            cmd.arg("PAYLOAD");
+            cmd.arg(payload);
+        }
+        if replace {
+            cmd.arg("REPLACE");
+            if partial {
+                cmd.arg("PARTIAL");
+            }
+        }
+        if language != "" {
+            cmd.arg("LANGUAGE");
+            cmd.arg(language);
+        }
+        cmd.arg("FIELDS");
+        // FIXME: Find better way
+        let flatten_fields: Vec<String> = fields.iter()
+            .map(|(f, v)| [f.to_string(), v.to_string()].join(" "))
+            .collect();
+        for field_value in flatten_fields.into_iter() {
+            cmd.arg(field_value);
+        }
+        let _ : () = try!(cmd.query(&self.conn));
+        Ok(())
     }
 
     /// Delete a document from index
-    pub fn delete_document(&self) {
-        unimplemented!()
-    }
-
-    /// Load a single document by id
-    pub fn load_document(&self) {
-        unimplemented!()
-    }
-
-    /// Get info an stats about the the current index, including the number of documents, memory
-    /// consumption, etc
-    pub fn info(&self) {
-        unimplemented!()
+    pub fn delete_document(&self, doc_id: &str) -> redis::RedisResult<()> {
+        let mut cmd = redis::cmd("FT.DEL");
+        cmd.arg(self.index_name.clone()).arg(doc_id);
+        let _ : () = try!(cmd.query(&self.conn));
+        Ok(())
     }
 
     fn _mk_query_args(&self) {
@@ -64,10 +92,6 @@ impl RediSearch {
 
     /// Search the index for a given query, and return a result of documents
     pub fn search(&self) {
-        unimplemented!()
-    }
-
-    pub fn explain(&self) {
         unimplemented!()
     }
 }

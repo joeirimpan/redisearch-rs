@@ -36,5 +36,16 @@ fn main() {
         )
     );
     client.create_index(vec![text_field, num_field, tag_field]);
+    client.add_document(
+        "doc_1",
+        false,
+        1.0,
+        "",
+        false,
+        false,
+        "",
+        vec![("field1", "value1"), ("field2", "value2")]
+    );
+    client.delete_document("doc_1");
     client.drop_index();
 }
